@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Predictor</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffffff, #f0f0f5);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        input {
+            width: 80%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0px 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        #result {
+            display: none;
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .disease-card {
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .severity-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .severity-common {
+            background-color: #ffc107;
+        }
+
+        .severity-mild {
+            background-color: #28a745;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Disease Predictor</h1>
+    <input type="text" id="symptom" placeholder="Enter symptoms (comma-separated)">
+    <button onclick="predictDisease()">Predict</button>
+    <div id="result"></div>
+    <footer>Made by NOOR ZAMAN</footer>
+
+    <script>
+        // Disease Data
+        const diseaseData = [
+            {
+                name: "Influenza",
+                symptoms: ["fever", "cough", "headache", "fatigue", "runny nose"],
+                description: "A viral infection that attacks the respiratory system.",
+                futureRisk: "Can lead to pneumonia, bronchitis, or severe respiratory issues if untreated.",
+                severity: "Common",
+                precautions: "Stay hydrated, avoid crowded places, and rest.",
+                solutions: "Paracetamol, warm fluids, consult a doctor if severe."
+            },
+            {
+                name: "Typhoid",
+                symptoms: ["fever", "stomach pain", "fatigue", "headache", "loss of appetite"],
+                description: "A bacterial infection caused by Salmonella typhi, transmitted through contaminated food and water.",
+                futureRisk: "Can cause intestinal perforation, bleeding, and organ failure if untreated.",
+                severity: "Serious",
+                precautions: "Avoid street food, drink clean water.",
+                solutions: "Antibiotics as prescribed, hydration, and rest."
+            },
+            {
+                name: "Migraine",
+                symptoms: ["headache", "nausea", "sensitivity to light", "fatigue", "dizziness"],
+                description: "A neurological condition causing severe headaches and sensitivity to light or sound.",
+                futureRisk: "May lead to chronic migraines and impact daily life if unmanaged.",
+                severity: "Mild",
+                precautions: "Avoid triggers, stay in dark quiet rooms.",
+                solutions: "Painkillers, relaxation techniques, consult a neurologist."
+            }
+        ];
+
+        // Predict Disease
+        function predictDisease() {
+            const symptomQuery = document.getElementById('symptom').value.toLowerCase();
+            const resultDiv = document.getElementById('result');
+            const inputSymptoms = symptomQuery.split(',').map(s => s.trim());
+
+            const matchedDiseases = diseaseData.map(disease => {
+                const matchingSymptoms = disease.symptoms.filter(symptom =>
+                    inputSymptoms.includes(symptom)
+                );
+                const otherSymptoms = disease.symptoms.filter(symptom =>
+                    !inputSymptoms.includes(symptom)
+                );
+                return {
+                    ...disease,
+                    matchCount: matchingSymptoms.length,
+                    matchingSymptoms,
+                    otherSymptoms
+                };
+            }).filter(disease => disease.matchCount > 0); // Allow diseases with at least one symptom
+
+            if (matchedDiseases.length > 0) {
+                let resultHTML = `<h2>Disease Prediction</h2>`;
+                matchedDiseases.sort((a, b) => b.matchCount - a.matchCount).forEach(disease => {
+                    const severityClass = disease.severity.toLowerCase() === "serious" ? "severity-badge" :
+                        disease.severity.toLowerCase() === "common" ? "severity-badge severity-common" :
+                        "severity-badge severity-mild";
+                    resultHTML += `
+                        <div class="disease-card">
+                            <div class="${severityClass}">${disease.severity}</div>
+                            <p><b>Disease:</b> ${disease.name}</p>
+                            <p><b>Description:</b> ${disease.description}</p>
+                            <p><b>Matching Symptoms:</b> ${disease.matchingSymptoms.join(', ')}</p>
+                            <p><b>Other Symptoms:</b> ${disease.otherSymptoms.join(', ')}</p>
+                            <p><b>Future Risks:</b> ${disease.futureRisk}</p>
+                            <p class="section-title">Precautions:</p>
+                            <p>${disease.precautions}</p>
+                            <p class="section-title">Solutions:</p>
+                            <p>${disease.solutions}</p>
+                        </div>
+                    `;
+                });
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = resultHTML;
+            } else {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <p style="color: #dc3545; text-align: center;">
+                        <b>No diseases found matching the entered symptoms.</b>
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
