@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Information</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+
+        button {
+            margin-left: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+
+        ul.suggestions {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+            border: 1px solid #ddd;
+            border-radius: 0 0 10px 10px;
+            background: #ffffff;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        ul.suggestions li {
+            padding: 15px;
+            font-size: 1rem;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f3f3f3;
+        }
+
+        ul.suggestions li:last-child {
+            border-bottom: none;
+        }
+
+        ul.suggestions li:hover {
+            background: #f1f9ff;
+            color: #007BFF;
+        }
+
+        .info-container {
+            display: none;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .info-container.active {
+            display: block;
+        }
+
+        .info-container h2 {
+            font-size: 1.5rem;
+            color: #007BFF;
+            margin-bottom: 10px;
+        }
+
+        .info-container p {
+            margin: 10px 0;
+        }
+
+        .severity {
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #e63946;
+            font-size: 0.9rem;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>Disease Information</h1>
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for a disease..." oninput="showSuggestions()">
+            <button onclick="handleSearch()">Search</button>
+        </div>
+        <ul id="suggestions" class="suggestions"></ul>
+        <div id="info-container" class="info-container"></div>
+    </div>
+    <script>
+        // Data for diseases
+        const diseases = [
+            {
+                name: "Influenza",
+                severity: "Common",
+                description: "Influenza, or the flu, is a viral infection that attacks the respiratory system.",
+                symptoms: ["Fever", "Chills", "Cough", "Body aches"],
+                treatment: "Rest, hydration, and over-the-counter fever reducers."
+            },
+            {
+                name: "Typhoid",
+                severity: "Serious",
+                description: "Typhoid fever is caused by Salmonella bacteria and is transmitted through contaminated food or water.",
+                symptoms: ["High fever", "Weakness", "Stomach pain", "Loss of appetite"],
+                treatment: "Antibiotics and maintaining hydration."
+            },
+            {
+                name: "Diabetes",
+                severity: "Chronic",
+                description: "Diabetes is a condition where blood sugar levels are abnormally high.",
+                symptoms: ["Increased thirst", "Frequent urination", "Fatigue", "Blurred vision"],
+                treatment: "Insulin therapy, dietary changes, and exercise."
+            },
+            {
+                name: "Asthma",
+                severity: "Chronic",
+                description: "Asthma is a respiratory condition marked by spasms in the bronchi, causing breathing difficulties.",
+                symptoms: ["Wheezing", "Shortness of breath", "Chest tightness", "Coughing"],
+                treatment: "Inhalers, avoiding triggers, and prescribed medications."
+            },
+            {
+                name: "Hypertension",
+                severity: "Common",
+                description: "Hypertension, or high blood pressure, is a condition where the force of blood against artery walls is too high.",
+                symptoms: ["Headaches", "Dizziness", "Nosebleeds (in severe cases)", "Fatigue"],
+                treatment: "Lifestyle changes and antihypertensive drugs."
+            }
+        ];
+
+        // Function to display suggestions
+        function showSuggestions() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const suggestionsDiv = document.getElementById('suggestions');
+            const infoContainer = document.getElementById('info-container');
+            infoContainer.classList.remove('active');
+            infoContainer.innerHTML = "";
+            suggestionsDiv.innerHTML = "";
+
+            if (query.trim() === "") {
+                suggestionsDiv.style.display = "none";
+                return;
+            }
+
+            const suggestions = diseases.filter(disease =>
+                disease.name.toLowerCase().includes(query)
+            );
+
+            if (suggestions.length > 0) {
+                suggestions.forEach(disease => {
+                    const li = document.createElement('li');
+                    li.textContent = disease.name;
+                    li.onclick = () => displayInfo(disease.name);
+                    suggestionsDiv.appendChild(li);
+                });
+                suggestionsDiv.style.display = "block";
+            } else {
+                suggestionsDiv.style.display = "none";
+            }
+        }
+
+        // Function to display the disease information
+        function displayInfo(name) {
+            const infoContainer = document.getElementById('info-container');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const disease = diseases.find(d => d.name === name);
+
+            if (disease) {
+                let infoContent = `
+                    <h2>${disease.name}</h2>
+                    <p class="severity">${disease.severity}</p>
+                    <p><b>Description:</b> ${disease.description}</p>
+                    <p><b>Symptoms:</b> ${disease.symptoms.join(", ")}</p>
+                    <p><b>Treatment:</b> ${disease.treatment}</p>
+                `;
+                infoContainer.innerHTML = infoContent;
+                infoContainer.classList.add('active');
+            }
+            suggestionsDiv.style.display = "none";
+        }
+
+        // Function to handle search button click
+        function handleSearch() {
+            const query = document.getElementById('search').value.toLowerCase();
+            if (query) {
+                showSuggestions();
+            } else {
+                alert("Please enter a disease name!");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solutions for Diseases</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fdf3e3, #ffffff);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #d17a22;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 80%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+button {
+    background-color: #4CAF50; /* Green color */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Initial subtle glow */
+}
+
+button:hover {
+    background-color: #388E3C; /* Darker green on hover */
+    box-shadow: 0 0 20px rgba(76, 175, 80, 1); /* Brighter glow on hover */
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 25px rgba(76, 175, 80, 1); /* Stronger glow on focus */
+}
+        input:focus {
+            border-color: #d17a22;
+            box-shadow: 0 0 10px rgba(209, 122, 34, 0.3);
+        }
+
+        .suggestions {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 0;
+            list-style: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            text-align: left;
+            display: none;
+            overflow: hidden;
+        }
+
+        .suggestions li {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .suggestions li:hover {
+            background: #f4f4f4;
+        }
+
+        .solution-card {
+            display: none;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: left;
+        }
+
+        .solution-card.active {
+            display: block;
+        }
+
+        .solution-card h2 {
+            font-size: 1.5rem;
+            color: #d17a22;
+            margin-bottom: 10px;
+        }
+
+        .solution-card ul {
+            padding-left: 20px;
+            list-style: disc;
+        }
+
+        .note {
+            color: #e63946;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Home Remedies for Common Diseases</h1>
+    <p class="note"><b>Note:</b> We are not suggesting drugs as they may cause severe side effects. Consult a doctor for accurate treatment.</p>
+    <input type="text" id="search" placeholder="Search for a disease..." oninput="showSuggestions()">
+    <ul id="suggestions" class="suggestions"></ul>
+    <div id="solution-card" class="solution-card"></div>
+    <footer>Made by NOOR ZAMAN</footer>
+
+    <script>
+        // Data for 20 diseases
+        const diseaseSolutions = [
+            { name: "Influenza", solutions: ["Drink warm ginger tea with honey to soothe a sore throat.", "Inhale steam with eucalyptus oil to ease congestion.", "Eat chicken soup to boost immunity and hydration."] },
+            { name: "Typhoid", solutions: ["Drink ORS (oral rehydration solution) for dehydration.", "Eat mashed bananas or boiled apples to aid digestion.", "Consume homemade buttermilk to soothe the stomach."] },
+            { name: "Diabetes", solutions: ["Drink bitter gourd juice to regulate blood sugar.", "Consume fenugreek seeds soaked overnight.", "Include cinnamon in your daily diet."] },
+            { name: "Asthma", solutions: ["Inhale steam with peppermint or eucalyptus oil.", "Drink warm turmeric milk to reduce inflammation.", "Consume a mixture of honey and ginger juice."] },
+            { name: "Hypertension", solutions: ["Drink hibiscus tea to lower blood pressure.", "Reduce stress with meditation or yoga.", "Consume garlic for its blood pressure-lowering properties."] },
+            { name: "Anemia", solutions: ["Consume beetroot juice with a dash of lemon.", "Eat spinach and lentils for natural iron.", "Soak and eat dates or raisins for a quick energy boost."] },
+            { name: "COVID-19", solutions: ["Stay hydrated and rest adequately.", "Drink herbal teas like tulsi or ginger to soothe the throat.", "Use saline water for nasal irrigation if congested."] },
+            { name: "Tuberculosis", solutions: ["Drink a glass of milk with a pinch of turmeric daily.", "Consume crushed garlic on an empty stomach to boost immunity.", "Eat fresh fruits like oranges for vitamin C."] },
+            { name: "Chickenpox", solutions: ["Apply calamine lotion on itchy spots.", "Take an oatmeal bath to soothe the skin.", "Drink coconut water to stay hydrated."] },
+            { name: "Malaria", solutions: ["Drink papaya leaf juice to boost platelets.", "Consume warm ginger tea to reduce fever.", "Use neem leaves boiled in water as a natural remedy."] },
+            { name: "Pneumonia", solutions: ["Drink warm soup or herbal tea to ease breathing.", "Inhale steam to clear the nasal passages.", "Gargle with saltwater to reduce throat irritation."] },
+            { name: "Migraine", solutions: ["Apply a cold compress on the forehead to reduce pain.", "Drink chamomile tea to relax.", "Massage peppermint oil on temples for relief."] },
+            { name: "Obesity", solutions: ["Drink warm water with lemon and honey every morning.", "Consume green tea for metabolism boost.", "Replace sugar with jaggery or stevia."] },
+            { name: "Acidity", solutions: ["Drink cold milk to neutralize stomach acid.", "Chew basil leaves to reduce heartburn.", "Consume a small piece of jaggery for relief."] },
+            { name: "Hepatitis", solutions: ["Consume fresh carrot or beetroot juice to detoxify the liver.", "Drink warm lemon water in the morning.", "Eat a diet rich in fiber and fresh fruits."] },
+            { name: "Dengue", solutions: ["Drink papaya leaf juice to increase platelet count.", "Consume guava juice to boost immunity.", "Stay hydrated with coconut water and ORS."] },
+            { name: "Sinusitis", solutions: ["Inhale steam with essential oils like eucalyptus.", "Drink warm ginger tea with honey.", "Use a saline nasal spray to clear congestion."] },
+            { name: "Arthritis", solutions: ["Massage joints with warm mustard or castor oil.", "Drink turmeric milk for anti-inflammatory benefits.", "Consume omega-3 rich foods like fish or flaxseeds."] },
+            { name: "Eczema", solutions: ["Apply coconut oil to moisturize the skin.", "Use aloe vera gel to soothe irritation.", "Avoid harsh soaps; use mild or medicated ones."] },
+            { name: "Constipation", solutions: ["Drink warm water with lemon in the morning.", "Eat soaked prunes or figs before bedtime.", "Consume a tablespoon of flaxseeds daily."] }
+        ];
+
+        // Function to display suggestions
+        function showSuggestions() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const suggestionsDiv = document.getElementById('suggestions');
+            const cardDiv = document.getElementById('solution-card');
+            cardDiv.classList.remove('active');
+            cardDiv.innerHTML = "";
+            suggestionsDiv.innerHTML = "";
+
+            if (query.trim() === "") {
+                suggestionsDiv.style.display = "none";
+                return;
+            }
+
+            const suggestions = diseaseSolutions.filter(disease =>
+                disease.name.toLowerCase().includes(query)
+            );
+
+            if (suggestions.length > 0) {
+                suggestions.forEach(disease => {
+                    const li = document.createElement('li');
+                    li.textContent = disease.name;
+                    li.onclick = () => displaySolution(disease.name);
+                    suggestionsDiv.appendChild(li);
+                });
+                suggestionsDiv.style.display = "block";
+            } else {
+                suggestionsDiv.style.display = "none";
+            }
+        }
+
+        // Function to display the solution card
+        function displaySolution(name) {
+            const cardDiv = document.getElementById('solution-card');
+            const suggestionsDiv = document.getElementById('suggestions');
+            const disease = diseaseSolutions.find(disease => disease.name === name);
+
+            if (disease) {
+                let cardContent = `
+                    <h2>${disease.name}</h2>
+                    <ul>
+                        ${disease.solutions.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                `;
+                cardDiv.innerHTML = cardContent;
+                cardDiv.classList.add('active');
+            }
+            suggestionsDiv.style.display = "none";
+        }
+    </script>
+</body>
+</html>

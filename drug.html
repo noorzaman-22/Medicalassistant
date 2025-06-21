@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Information</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffffff, #e6e9f0);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Header Styling */
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        /* Input Styling */
+        .input-container {
+            position: relative;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Suggestion Box */
+        .suggestion-box {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .suggestion-box div {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .suggestion-box div:hover {
+            background-color: #f0f0f5;
+        }
+
+        /* Button */
+        button {
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0px 5px 15px rgba(0, 123, 255, 0.3);
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Card Styling */
+        #result {
+            display: none;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 15px;
+            background: white;
+            color: #333;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            animation: fadeInUp 0.5s ease-in-out;
+        }
+
+        #result h2 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        #result p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drug Information</h1>
+    <div class="input-container">
+        <input type="text" id="search" placeholder="Enter drug name" oninput="showSuggestions()">
+        <div id="suggestions" class="suggestion-box"></div>
+    </div>
+    <button onclick="searchDrug()">Search</button>
+    <div id="result"></div>
+    <footer>© 2025 YourApp. All rights reserved.</footer>
+
+    <script>
+        // Drug Data
+        const drugData = {
+            "paracetamol": {
+                "uses": "Relieves fever and mild pain.",
+                "sideEffects": "Nausea, rash, liver damage (rare).",
+                "howToUse": "Take 500mg with water after meals."
+            },
+            "ibuprofen": {
+                "uses": "Relieves pain and reduces inflammation.",
+                "sideEffects": "Stomach upset, dizziness, nausea.",
+                "howToUse": "Take 400mg with food to avoid stomach issues."
+            },
+            "amoxicillin": {
+                "uses": "Treats bacterial infections like respiratory infections.",
+                "sideEffects": "Diarrhea, headache, nausea.",
+                "howToUse": "Take 500mg three times daily as prescribed."
+            },
+            "cetirizine": {
+                "uses": "Relieves allergy symptoms like runny nose and itching.",
+                "sideEffects": "Drowsiness, dry mouth, fatigue.",
+                "howToUse": "Take 10mg once daily, preferably in the evening."
+            },
+            "metformin": {
+                "uses": "Controls blood sugar levels in type 2 diabetes.",
+                "sideEffects": "Nausea, upset stomach, diarrhea.",
+                "howToUse": "Take 500mg with meals as prescribed."
+            }
+        };
+
+        // Show Suggestions
+        function showSuggestions() {
+            const input = document.getElementById('search').value.toLowerCase();
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = ''; // Clear previous suggestions
+
+            if (input) {
+                const suggestions = Object.keys(drugData).filter(drug =>
+                    drug.startsWith(input)
+                );
+
+                if (suggestions.length) {
+                    suggestions.forEach(drug => {
+                        const suggestionDiv = document.createElement('div');
+                        suggestionDiv.textContent = drug.charAt(0).toUpperCase() + drug.slice(1);
+                        suggestionDiv.onclick = () => {
+                            document.getElementById('search').value = drug;
+                            suggestionsDiv.style.display = 'none'; // Hide suggestions
+                        };
+                        suggestionsDiv.appendChild(suggestionDiv);
+                    });
+
+                    suggestionsDiv.style.display = 'block'; // Show suggestions
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        }
+
+        // Search Drug
+        function searchDrug() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            const resultDiv = document.getElementById('result');
+
+            if (drugData[searchQuery]) {
+                const drug = drugData[searchQuery];
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h2>${searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1)}</h2>
+                    <p><b>Uses:</b> ${drug.uses}</p>
+                    <p><b>Side Effects:</b> ${drug.sideEffects}</p>
+                    <p><b>How to Use:</b> ${drug.howToUse}</p>
+                `;
+            } else {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <p style="color: #ff4c4c; text-align: center;">
+                        <b>No information found for "${searchQuery}".</b>
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
